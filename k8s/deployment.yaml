@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: bedrock-app
-          image: yaswanthmitta/multiapp-bedrock-app:latest
+          image: yaswanthmitta/multiapp-bedrock-app:d7c046062b0ee9e698eae4effb32851bbc59a164
           ports:
             - containerPort: 5005
           envFrom:
