@@ -1,4 +1,4 @@
-name: AI Cheatsheet Maker CD
+name: CD - Deploy to Kubernetes
 
 on:
   push:

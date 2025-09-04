@@ -1,4 +1,4 @@
-name: AI Cheatsheet Maker CI
+name: CI - Build & Push Docker Image
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write # This line grants write permission to the GITHUB_TOKEN
+  contents: write
 
 env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
