@@ -8,6 +8,9 @@ on:
       - 'app/**'
   workflow_dispatch:
 
+permissions:
+  contents: write # This line grants write permission to the GITHUB_TOKEN
+
 env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -36,7 +39,7 @@ jobs:
       - name: Update and push deployment manifest
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.all "github-actions[bot]@users.noreply.github.com"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
           sed -i "s|image: ${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:.*|image: ${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" k8s/deployment.yaml
           
