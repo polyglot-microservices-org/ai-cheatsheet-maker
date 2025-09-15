@@ -44,7 +44,9 @@ def execute_kubectl_command(query):
     for key, cmd in kubectl_commands.items():
         if key in query_lower:
             try:
-                result = subprocess.run(cmd.split(), capture_output=True, text=True, timeout=10)
+                # Run kubectl as ubuntu user
+                full_cmd = ["sudo", "-u", "ubuntu"] + cmd.split()
+                result = subprocess.run(full_cmd, capture_output=True, text=True, timeout=10)
                 if result.returncode == 0:
                     return result.stdout
                 else:
