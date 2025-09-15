@@ -3,6 +3,7 @@ from flask_cors import CORS
 import boto3
 import os
 import json
+import subprocess
 from dotenv import load_dotenv
 
 # Load environment variables from the .env file
@@ -19,6 +20,40 @@ bedrock_client = boto3.client(
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
 )
 
+def execute_kubectl_command(query):
+    """Execute kubectl commands based on user query"""
+    query_lower = query.lower()
+    
+    kubectl_commands = {
+        "pods": "kubectl get pods -o wide",
+        "pod": "kubectl get pods -o wide", 
+        "running pods": "kubectl get pods -o wide",
+        "pvs": "kubectl get pv",
+        "pv": "kubectl get pv",
+        "persistent volumes": "kubectl get pv",
+        "pvcs": "kubectl get pvc",
+        "pvc": "kubectl get pvc",
+        "services": "kubectl get svc",
+        "service": "kubectl get svc",
+        "deployments": "kubectl get deployments",
+        "deployment": "kubectl get deployments",
+        "nodes": "kubectl get nodes -o wide",
+        "node": "kubectl get nodes -o wide"
+    }
+    
+    for key, cmd in kubectl_commands.items():
+        if key in query_lower:
+            try:
+                result = subprocess.run(cmd.split(), capture_output=True, text=True, timeout=10)
+                if result.returncode == 0:
+                    return result.stdout
+                else:
+                    return f"Error: {result.stderr}"
+            except Exception as e:
+                return f"Error executing command: {str(e)}"
+    
+    return None
+
 @app.route('/cheatsheet', methods=['POST'])
 def generate_cheatsheet():
     data = request.get_json()
@@ -26,6 +61,12 @@ def generate_cheatsheet():
     if not topic:
         return jsonify({"error": "Topic is required"}), 400
 
+    # Check if it's a kubectl query first
+    kubectl_result = execute_kubectl_command(topic)
+    if kubectl_result:
+        return jsonify({"cheatsheet": f"Kubernetes Cluster Information:\n\n{kubectl_result}"})
+
+    # Otherwise, generate AI cheatsheet
     messages = [
         {"role": "user", "content": f"Create a cheat sheet of 10 commands/tips about {topic}."}
     ]
